@@ -1,0 +1,350 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --void:      #050A14;
+  --deep:      #080F1E;
+  --surface:   #0D1628;
+  --raised:    #111D35;
+  --border:    rgba(0,212,255,0.12);
+  --border2:   rgba(0,212,255,0.28);
+  --cyan:      #00D4FF;
+  --cyan-dim:  rgba(0,212,255,0.13);
+  --cyan-glow: rgba(0,212,255,0.35);
+  --amber:     #FF8C00;
+  --amber-dim: rgba(255,140,0,0.13);
+  --red:       #FF3366;
+  --red-dim:   rgba(255,51,102,0.13);
+  --green:     #00FF88;
+  --green-dim: rgba(0,255,136,0.13);
+  --purple:    #9B59FF;
+  --purple-dim:rgba(155,89,255,0.13);
+  --text:      #E8F4FF;
+  --muted:     #7A9ABB;
+  --dim:       #3D5A7A;
+
+  /* Motion timing tokens */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out:    cubic-bezier(0.0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast:    150ms;
+  --dur-normal:  220ms;
+  --dur-slow:    350ms;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,212,255,0.015) 2px,
+    rgba(0,212,255,0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--raised); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+
+/* ─── Input / Select / Textarea ─────────────────────────────────────────────── */
+input, select, textarea {
+  background: var(--deep);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 13px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color var(--dur-normal) var(--ease-out),
+              box-shadow var(--dur-normal) var(--ease-out),
+              background var(--dur-normal) var(--ease-out);
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--cyan);
+  background: rgba(0,212,255,0.03);
+  box-shadow: 0 0 0 3px var(--cyan-dim), 0 0 0 1px rgba(0,212,255,0.2) inset;
+}
+input:hover:not(:focus), select:hover:not(:focus), textarea:hover:not(:focus) {
+  border-color: rgba(0,212,255,0.22);
+}
+select option { background: var(--surface); }
+textarea { resize: vertical; min-height: 72px; }
+
+/* Range input */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--raised);
+  border: none;
+  border-radius: 999px;
+  height: 4px;
+  padding: 0;
+  transition: opacity var(--dur-fast) ease;
+}
+input[type="range"]:hover { opacity: 0.9; }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 10px var(--cyan-glow), 0 0 0 2px rgba(0,212,255,0.15);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-spring),
+              box-shadow var(--dur-fast) ease;
+}
+input[type="range"]:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 16px var(--cyan-glow);
+}
+
+/* ─── Page enter ─────────────────────────────────────────────────────────────── */
+.screen-enter { animation: fadeUp var(--dur-slow) var(--ease-spring) forwards; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Card entrance with stagger ─────────────────────────────────────────────── */
+.cos-card-enter {
+  opacity: 0;
+  animation: cosCardEnter var(--dur-slow) var(--ease-spring) forwards;
+  animation-delay: calc(var(--stagger, 0) * 60ms);
+}
+@keyframes cosCardEnter {
+  from { opacity: 0; transform: translateY(10px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ─── Trace line ─────────────────────────────────────────────────────────────── */
+.trace-line {
+  opacity: 0;
+  transform: translateX(-6px);
+  animation: traceIn 0.4s var(--ease-spring) forwards;
+}
+@keyframes traceIn {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ─── Timeline spine pulse ───────────────────────────────────────────────────── */
+@keyframes spineGlow {
+  0%, 100% { opacity: 0; }
+  50%       { opacity: 0.4; }
+}
+.spine-glow { animation: spineGlow 3s ease-in-out infinite; }
+
+/* ─── Conflict pulse ─────────────────────────────────────────────────────────── */
+@keyframes conflictPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,51,102,0); }
+  50%       { box-shadow: 0 0 0 4px rgba(255,51,102,0.25); }
+}
+.conflict-pulse { animation: conflictPulse 1s ease-in-out infinite; }
+
+/* ─── Status dot blink ───────────────────────────────────────────────────────── */
+@keyframes statusBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.status-blink { animation: statusBlink 2s ease-in-out infinite; }
+
+/* ─── Card hover ─────────────────────────────────────────────────────────────── */
+.cos-card-hover {
+  transition: transform var(--dur-normal) var(--ease-spring),
+              box-shadow var(--dur-normal) var(--ease-spring),
+              border-color var(--dur-normal) ease;
+}
+.cos-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0,212,255,0.07), 0 2px 8px rgba(0,0,0,0.3);
+  border-color: rgba(0,212,255,0.26) !important;
+}
+
+/* ─── Button micro-interaction ───────────────────────────────────────────────── */
+.cos-button {
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--dur-fast) var(--ease-spring),
+              box-shadow var(--dur-fast) ease,
+              border-color var(--dur-fast) ease,
+              letter-spacing var(--dur-normal) ease;
+}
+.cos-button:hover {
+  letter-spacing: 0.10em;
+}
+.cos-button:active {
+  transform: scale(0.96);
+}
+/* Shimmer overlay on hover */
+.cos-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.05);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-fast) ease;
+}
+.cos-button:hover::after { opacity: 1; }
+
+/* ─── Expandable / collapsible ───────────────────────────────────────────────── */
+@keyframes cosSlideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cos-expandable {
+  animation: cosSlideDown var(--dur-slow) var(--ease-spring) forwards;
+  overflow: hidden;
+}
+
+/* ─── Stagger list items ─────────────────────────────────────────────────────── */
+@keyframes cosItemFadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cos-stagger-item {
+  opacity: 0;
+  animation: cosItemFadeUp var(--dur-slow) var(--ease-spring) forwards;
+  animation-delay: calc(var(--stagger, 0) * 55ms);
+}
+
+/* ─── Shimmer skeleton ───────────────────────────────────────────────────────── */
+@keyframes cosShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.cos-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(8,15,30,0.6) 25%,
+    rgba(0,212,255,0.07) 50%,
+    rgba(8,15,30,0.6) 75%
+  );
+  background-size: 200% 100%;
+  animation: cosShimmer 1.8s infinite linear;
+  border-radius: 6px;
+}
+
+/* ─── AI Thinking dot pulse ──────────────────────────────────────────────────── */
+@keyframes cosDotPulse {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+  40%            { transform: scale(1);   opacity: 1; }
+}
+.cos-dot { display: inline-block; border-radius: 50%; }
+.cos-dot:nth-child(1) { animation: cosDotPulse 1.2s var(--ease-in-out) infinite 0.0s; }
+.cos-dot:nth-child(2) { animation: cosDotPulse 1.2s var(--ease-in-out) infinite 0.2s; }
+.cos-dot:nth-child(3) { animation: cosDotPulse 1.2s var(--ease-in-out) infinite 0.4s; }
+
+/* ─── Success flash ──────────────────────────────────────────────────────────── */
+@keyframes cosSuccessFlash {
+  0%   { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+  30%  { box-shadow: 0 0 0 8px rgba(0,255,136,0.35); }
+  100% { box-shadow: 0 0 0 0 rgba(0,255,136,0); }
+}
+.cos-success-flash { animation: cosSuccessFlash 0.6s var(--ease-out) forwards; }
+
+/* ─── Badge pop ──────────────────────────────────────────────────────────────── */
+@keyframes cosBadgePop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.cos-badge-pop { animation: cosBadgePop 0.3s var(--ease-spring) forwards; }
+
+/* ─── Chat message entrance ──────────────────────────────────────────────────── */
+@keyframes cosMessageIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.cos-message-in {
+  animation: cosMessageIn var(--dur-normal) var(--ease-spring) forwards;
+}
+
+/* ─── Cursor blink (trace) ───────────────────────────────────────────────────── */
+@keyframes cosCursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.cos-cursor {
+  display: inline-block;
+  width: 2px; height: 12px;
+  background: var(--cyan);
+  margin-left: 3px;
+  vertical-align: text-bottom;
+  animation: cosCursorBlink 0.85s ease-in-out infinite;
+}
+
+/* ─── Eyebrow line grow ───────────────────────────────────────────────────────── */
+@keyframes cosLineGrow {
+  from { width: 0; opacity: 0; }
+  to   { width: 24px; opacity: 1; }
+}
+.cos-eyebrow-line {
+  animation: cosLineGrow 0.4s var(--ease-spring) forwards;
+  animation-delay: 0.1s;
+  opacity: 0;
+}
+
+/* ─── Smooth remove (for list items) ────────────────────────────────────────── */
+@keyframes cosItemRemove {
+  to { opacity: 0; transform: translateX(12px) scale(0.97); }
+}
+.cos-item-removing {
+  animation: cosItemRemove var(--dur-normal) var(--ease-in-out) forwards;
+  overflow: hidden;
+}
+
+/* ─── Timeline event — moved/rescheduled entry glow ─────────────────────────── */
+@keyframes timelineMovedEnter {
+  0%   { box-shadow: 0 0 0 0 rgba(255,140,0,0); }
+  30%  { box-shadow: 0 0 0 5px rgba(255,140,0,0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(255,140,0,0); }
+}
+.timeline-moved-enter {
+  animation: timelineMovedEnter 0.7s ease-out forwards;
+}
+
+/* ─── Timeline event — deferred/dropped (quiet fade-in) ─────────────────────── */
+@keyframes timelineDeferredEnter {
+  from { opacity: 0; }
+  to   { opacity: 0.5; }
+}
+.timeline-deferred {
+  opacity: 0.5;
+  animation: timelineDeferredEnter 0.4s ease forwards;
+}
+
+
+/* ─── Reduced motion overrides ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
