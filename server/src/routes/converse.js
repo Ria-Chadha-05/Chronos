@@ -287,6 +287,8 @@ router.post('/', async (req, res) => {
     return res.status(400).json({ error: 'message is required.' });
   }
 
+  console.log(`[Chronos] POST /api/converse message="${message.slice(0, 80)}" intentHint=${intentHint} hasToken=${Boolean(req.get('X-Google-Access-Token'))}`);
+
   // Google access token, forwarded per-request from the client. Chronos never
   // stores this — it's only held in memory for the lifetime of this request.
   const accessToken = req.get('X-Google-Access-Token') || null;
@@ -349,7 +351,8 @@ router.post('/', async (req, res) => {
       intent,           // echo resolved intent back to client
     });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error('[Chronos] /api/converse failed:', e.stack || e);
+    res.status(500).json({ error: e.message || 'Internal server error' });
   }
 });
 

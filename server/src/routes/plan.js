@@ -4,6 +4,7 @@ import { groq } from '../lib/groq.js';
 const router = Router();
 
 router.post('/', async (req, res) => {
+  console.log(`[Chronos] POST /api/plan body keys: ${Object.keys(req.body || {}).join(', ')}`);
   const { tasks, lifeMode, energyProfile } = req.body;
   if (!tasks?.length) return res.status(400).json({ error: 'No tasks provided' });
 
@@ -59,7 +60,8 @@ Respond ONLY with valid JSON:
 }`);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error(`[Chronos] /api/plan failed:`, e.stack || e);
+    res.status(500).json({ error: e.message || 'Internal server error' });
   }
 });
 

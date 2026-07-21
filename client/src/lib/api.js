@@ -9,13 +9,59 @@ import { getAccessToken } from '../context/AuthContext.jsx';
 const API_ROOT = import.meta.env.VITE_API_URL || '';
 const BASE = `${API_ROOT}/api`;
 
+// ROOT CAUSE GUARD: in a production build, VITE_API_URL is baked in at
+// *build time*. If the Vercel project for the frontend doesn't have this
+// env var set, API_ROOT silently falls back to '' and every request goes
+// to `${window.location.origin}/api/...` - the frontend's own domain,
+// which has no backend routes (backend is a separate Vercel project).
+// fetch() then fails at the network/routing layer with a generic,
+// unhelpful "Load failed" - exactly the symptom this guard prevents.
+if (import.meta.env.PROD && !API_ROOT) {
+  // eslint-disable-next-line no-console
+  console.error(
+    '[Chronos] VITE_API_URL is not set in this production build. ' +
+    'All AI requests will be sent to this frontend\'s own domain ' +
+    '(no backend exists there) and will fail with "Load failed". ' +
+    'Fix: in the FRONTEND Vercel project -> Settings -> Environment ' +
+    'Variables, add VITE_API_URL=https://<your-backend>.vercel.app, ' +
+    'then redeploy (env vars only take effect on the next build).'
+  );
+}
+
 async function post(endpoint, body, extraHeaders = {}) {
-  const res = await fetch(`${BASE}${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...extraHeaders },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
+  const url = `${BASE}${endpoint}`;
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...extraHeaders },
+      body: JSON.stringify(body),
+    });
+  } catch (networkErr) {
+    // fetch() itself threw - DNS failure, CORS block, connection refused,
+    // mixed content, etc. This is the "Load failed" case. Surface the
+    // actual target URL so misconfiguration is obvious instead of opaque.
+    console.error(`[Chronos] Network request to ${url} failed:`, networkErr);
+    const hint = !API_ROOT
+      ? ' (VITE_API_URL is unset - see console warning above)'
+      : '';
+    throw new Error(
+      `Could not reach the Chronos backend at ${url}${hint}. ${networkErr.message}`
+    );
+  }
+
+  const raw = await res.text();
+  let data;
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch (parseErr) {
+    // Backend returned non-JSON (e.g. an HTML 404/500 page from Vercel's
+    // routing layer). Surface enough to diagnose instead of throwing an
+    // opaque "Unexpected token < in JSON" error.
+    console.error(`[Chronos] Non-JSON response from ${url} (status ${res.status}):`, raw.slice(0, 300));
+    throw new Error(`Backend returned a non-JSON response (HTTP ${res.status}) from ${url}`);
+  }
+
   if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
   return data;
 }

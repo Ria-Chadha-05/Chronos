@@ -4,6 +4,7 @@ import { groq } from '../lib/groq.js';
 const router = Router();
 
 router.post('/', async (req, res) => {
+  console.log(`[Chronos] POST /api/simulate body keys: ${Object.keys(req.body || {}).join(', ')}`);
   const { existingTasks, newItem, capacityAnalysis } = req.body;
 
   try {
@@ -31,7 +32,8 @@ Respond ONLY with valid JSON:
 }`);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error(`[Chronos] /api/simulate failed:`, e.stack || e);
+    res.status(500).json({ error: e.message || 'Internal server error' });
   }
 });
 

@@ -16,6 +16,8 @@ router.post('/', async (req, res) => {
   const { draftId } = req.body;
   const accessToken = req.get('X-Google-Access-Token') || null;
 
+  console.log(`[Chronos] POST /api/send-email draftId=${draftId} hasToken=${Boolean(accessToken)}`);
+
   if (!draftId) return res.status(400).json({ error: 'draftId is required.' });
   if (!accessToken) return res.status(401).json({ error: 'Missing Google access token.' });
 
@@ -23,7 +25,8 @@ router.post('/', async (req, res) => {
     const result = await sendGmailDraft(accessToken, draftId);
     res.json({ sent: true, messageId: result.id });
   } catch (e) {
-    res.status(e.status || 500).json({ error: e.message });
+    console.error('[Chronos] /api/send-email failed:', e.stack || e);
+    res.status(e.status || 500).json({ error: e.message || 'Internal server error' });
   }
 });
 

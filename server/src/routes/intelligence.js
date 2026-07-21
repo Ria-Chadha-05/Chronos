@@ -194,11 +194,14 @@ Rules:
 - confidence: 0–100, reflecting how well the data answers the question
 - enginesReferenced: which engine outputs you drew from`;
 
+  console.log(`[Chronos] POST /api/intelligence question="${question.slice(0, 80)}"`);
+
   try {
     const data = await groq(prompt);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error('[Chronos] /api/intelligence failed:', e.stack || e);
+    res.status(500).json({ error: e.message || 'Internal server error' });
   }
 });
 

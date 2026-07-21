@@ -4,6 +4,7 @@ import { groq } from '../lib/groq.js';
 const router = Router();
 
 router.post('/', async (req, res) => {
+  console.log(`[Chronos] POST /api/prep body keys: ${Object.keys(req.body || {}).join(', ')}`);
   const { task } = req.body;
 
   try {
@@ -25,7 +26,8 @@ Respond ONLY with valid JSON:
 }`);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error(`[Chronos] /api/prep failed:`, e.stack || e);
+    res.status(500).json({ error: e.message || 'Internal server error' });
   }
 });
 
