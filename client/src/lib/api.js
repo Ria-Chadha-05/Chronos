@@ -1,6 +1,13 @@
 import { getAccessToken } from '../context/AuthContext.jsx';
 
-const BASE = '/api';
+// In production the frontend and backend are separate Vercel projects on
+// different domains, so the backend URL must be explicit — set
+// VITE_API_URL to the deployed backend's URL (e.g. https://chronos-api.vercel.app).
+// In local dev, VITE_API_URL is left unset and this falls back to the
+// relative '/api' path, which Vite's dev-server proxy forwards to the
+// local Express server (see vite.config.js) — unchanged local behavior.
+const API_ROOT = import.meta.env.VITE_API_URL || '';
+const BASE = `${API_ROOT}/api`;
 
 async function post(endpoint, body, extraHeaders = {}) {
   const res = await fetch(`${BASE}${endpoint}`, {
