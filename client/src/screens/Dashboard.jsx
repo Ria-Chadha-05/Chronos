@@ -1447,35 +1447,39 @@ export default function Dashboard() {
   const { chronosReport, executiveReport, intelligenceReport, isProcessing } = useAgent();
 
   // ── ARCHITECTURAL DATA FLOW TRACE ──────────────────────────────────────────
-  console.info('[Dataflow Trace] Dashboard received commitments from CommitmentContext:', {
-    length: commitments?.length ?? 0,
-    firstFew: commitments?.slice(0, 3),
-  });
-  console.info('[Dataflow Trace] Dashboard received tasks from useChronos() (ChronosContext):', {
-    length: tasks?.length ?? 0,
-    firstFew: tasks?.slice(0, 3),
-  });
-  console.info('[Dataflow Trace] Dashboard received plan from useChronos() (ChronosContext):', {
-    hasPlan: !!plan,
-    scheduleLength: plan?.schedule?.length ?? 0,
-    firstFew: plan?.schedule?.slice(0, 3),
-  });
-  console.info('[Dataflow Trace] Dashboard received rescue from useChronos() (ChronosContext):', {
-    hasRescue: !!rescue,
-    rescuedScheduleLength: rescue?.rescuedSchedule?.length ?? 0,
-    firstFew: rescue?.rescuedSchedule?.slice(0, 3),
-  });
-  console.info('[Dataflow Trace] Dashboard received chronosReport from AgentContext:', {
-    hasReport: !!chronosReport,
-    todayCommitmentsLength: chronosReport?.todayCommitments?.length ?? 0,
-    firstFew: chronosReport?.todayCommitments?.slice(0, 3),
-  });
-  console.info('[Dataflow Trace] Dashboard received executiveReport from AgentContext:', {
-    hasReport: !!executiveReport,
-    prioritiesLength: executiveReport?.priorities?.length ?? 0,
-    alertsLength: executiveReport?.alerts?.length ?? 0,
-    recommendationsLength: executiveReport?.recommendations?.length ?? 0,
-  });
+  // Gated behind an effect so it only runs when the traced values actually
+  // change, not on every render.
+  useEffect(() => {
+    console.info('[Dataflow Trace] Dashboard received commitments from CommitmentContext:', {
+      length: commitments?.length ?? 0,
+      firstFew: commitments?.slice(0, 3),
+    });
+    console.info('[Dataflow Trace] Dashboard received tasks from useChronos() (ChronosContext):', {
+      length: tasks?.length ?? 0,
+      firstFew: tasks?.slice(0, 3),
+    });
+    console.info('[Dataflow Trace] Dashboard received plan from useChronos() (ChronosContext):', {
+      hasPlan: !!plan,
+      scheduleLength: plan?.schedule?.length ?? 0,
+      firstFew: plan?.schedule?.slice(0, 3),
+    });
+    console.info('[Dataflow Trace] Dashboard received rescue from useChronos() (ChronosContext):', {
+      hasRescue: !!rescue,
+      rescuedScheduleLength: rescue?.rescuedSchedule?.length ?? 0,
+      firstFew: rescue?.rescuedSchedule?.slice(0, 3),
+    });
+    console.info('[Dataflow Trace] Dashboard received chronosReport from AgentContext:', {
+      hasReport: !!chronosReport,
+      todayCommitmentsLength: chronosReport?.todayCommitments?.length ?? 0,
+      firstFew: chronosReport?.todayCommitments?.slice(0, 3),
+    });
+    console.info('[Dataflow Trace] Dashboard received executiveReport from AgentContext:', {
+      hasReport: !!executiveReport,
+      prioritiesLength: executiveReport?.priorities?.length ?? 0,
+      alertsLength: executiveReport?.alerts?.length ?? 0,
+      recommendationsLength: executiveReport?.recommendations?.length ?? 0,
+    });
+  }, [commitments, tasks, plan, rescue, chronosReport, executiveReport]);
   // ───────────────────────────────────────────────────────────────────────────
 
   const [insightsLoading, setInsightsLoading] = useState(true);

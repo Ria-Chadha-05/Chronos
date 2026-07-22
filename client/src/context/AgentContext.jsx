@@ -24,6 +24,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -300,32 +301,48 @@ export function AgentProvider({ children }) {
   const unreadEventCount = agentEvents.filter(e => !e.read).length;
   const unreadNotifCount = executiveNotifications.filter(n => !n.read).length;
 
+  const value = useMemo(() => ({
+    // Reports (single source of truth, computed by agent)
+    chronosReport,
+    executiveReport,
+    intelligenceReport,
+
+    // Agent events (raw feed)
+    agentEvents,
+    unreadEventCount,
+    markEventRead,
+    markAllEventsRead,
+    clearEvents,
+
+    // Executive notifications (filtered, actionable)
+    executiveNotifications,
+    unreadNotifCount,
+    markNotificationRead,
+
+    // Agent status
+    isProcessing,
+    lastRunAt,
+
+    // Event type constants for consumers
+    AGENT_EVENTS,
+  }), [
+    chronosReport,
+    executiveReport,
+    intelligenceReport,
+    agentEvents,
+    unreadEventCount,
+    markEventRead,
+    markAllEventsRead,
+    clearEvents,
+    executiveNotifications,
+    unreadNotifCount,
+    markNotificationRead,
+    isProcessing,
+    lastRunAt,
+  ]);
+
   return (
-    <AgentContext.Provider value={{
-      // Reports (single source of truth, computed by agent)
-      chronosReport,
-      executiveReport,
-      intelligenceReport,
-
-      // Agent events (raw feed)
-      agentEvents,
-      unreadEventCount,
-      markEventRead,
-      markAllEventsRead,
-      clearEvents,
-
-      // Executive notifications (filtered, actionable)
-      executiveNotifications,
-      unreadNotifCount,
-      markNotificationRead,
-
-      // Agent status
-      isProcessing,
-      lastRunAt,
-
-      // Event type constants for consumers
-      AGENT_EVENTS,
-    }}>
+    <AgentContext.Provider value={value}>
       {children}
     </AgentContext.Provider>
   );

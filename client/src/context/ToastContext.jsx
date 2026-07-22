@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
 const ToastContext = createContext(null);
 
@@ -9,7 +9,8 @@ export function ToastProvider({ children }) {
     setToasts(t => [...t, { id, message, type }]);
     setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 4200);
   }, []);
-  return <ToastContext.Provider value={{ toasts, toast }}>{children}</ToastContext.Provider>;
+  const value = useMemo(() => ({ toasts, toast }), [toasts, toast]);
+  return <ToastContext.Provider value={value}>{children}</ToastContext.Provider>;
 }
 
 export const useToast = () => useContext(ToastContext);

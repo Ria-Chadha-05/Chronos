@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from './AuthContext.jsx';
 import { useDemo } from './DemoContext.jsx';
 import { fetchUpcomingEvents } from '../lib/calendarService.js';
@@ -30,6 +30,11 @@ export function CommitmentProvider({ children }) {
   const [commitments, setCommitments] = useState([]);
   const loadedCalendarForUserRef = useRef(null);
   const loadedGmailForUserRef = useRef(null);
+  const commitmentsRef = useRef(commitments);
+
+  useEffect(() => {
+    commitmentsRef.current = commitments;
+  }, [commitments]);
 
   // ─── Demo Mode: override commitments with demo data ────────────────────────
   // When demo mode is on, ignore Google sources and use generated demo data.
@@ -185,7 +190,7 @@ export function CommitmentProvider({ children }) {
       // Deduplicate against existing commitments in the store
       // (exclude current Gmail commitments so we're only deduplicating against
       // non-Gmail sources and previously-loaded gmail commitments)
-      const existingNonGmail = commitments.filter(c => c.source !== 'gmail');
+      const existingNonGmail = commitmentsRef.current.filter(c => c.source !== 'gmail');
       const gmailCommitments = deduplicateGmailCommitments(rawGmailCommitments, existingNonGmail);
 
       console.info('[Chronos Pipeline] Gmail Commitment Transformer output ready', {
@@ -219,7 +224,7 @@ export function CommitmentProvider({ children }) {
 
     gmailLoadPromiseByUser.set(userId, loadPromise);
     return loadPromise;
-  }, [user, commitments]);
+  }, [user]);
 
   const refreshGmail = useCallback(async () => {
     if (user) {
@@ -449,27 +454,44 @@ export function CommitmentProvider({ children }) {
     };
   }, [isDemoMode, loading, user, getRestoredAccessToken, loadCalendarCommitments, loadGmailCommitments]);
 
+  const value = useMemo(() => ({
+    commitments,
+    setCommitments,
+    // Calendar
+    loadCalendarCommitments,
+    refreshCalendar,
+    // Gmail
+    loadGmailCommitments,
+    refreshGmail,
+    // Manual Task CRUD (Part 1)
+    addManualTask,
+    updateManualTask,
+    deleteManualTask,
+    completeManualTask,
+    // Ongoing Project CRUD (Part 3)
+    addOngoingProject,
+    updateOngoingProject,
+    updateProjectCompletion,
+    deleteOngoingProject,
+  }), [
+    commitments,
+    setCommitments,
+    loadCalendarCommitments,
+    refreshCalendar,
+    loadGmailCommitments,
+    refreshGmail,
+    addManualTask,
+    updateManualTask,
+    deleteManualTask,
+    completeManualTask,
+    addOngoingProject,
+    updateOngoingProject,
+    updateProjectCompletion,
+    deleteOngoingProject,
+  ]);
+
   return (
-    <CommitmentContext.Provider value={{
-      commitments,
-      setCommitments,
-      // Calendar
-      loadCalendarCommitments,
-      refreshCalendar,
-      // Gmail
-      loadGmailCommitments,
-      refreshGmail,
-      // Manual Task CRUD (Part 1)
-      addManualTask,
-      updateManualTask,
-      deleteManualTask,
-      completeManualTask,
-      // Ongoing Project CRUD (Part 3)
-      addOngoingProject,
-      updateOngoingProject,
-      updateProjectCompletion,
-      deleteOngoingProject,
-    }}>
+    <CommitmentContext.Provider value={value}>
       {children}
     </CommitmentContext.Provider>
   );

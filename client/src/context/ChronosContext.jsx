@@ -1,6 +1,6 @@
 import { showLoading, hideLoading } from '../components/ui/LoadingOverlay.jsx';
 import { useToast } from './ToastContext.jsx';
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage.js';
 import { useCommitments } from './CommitmentContext.jsx';
 
@@ -209,19 +209,32 @@ export function ChronosProvider({ children }) {
     }
   }, []);
 
+  const value = useMemo(() => ({
+    tasks, setTasks,
+    anchors, setAnchors,
+    lifeMode, setLifeMode,
+    plan, setPlan,
+    rescue, setRescue,
+    review, setReview,
+    reflection, setReflection,
+    simResult, setSimResult,
+    prepResult, setPrepResult,
+    runPlan, runRescue, runReview, runReflection, runSimulate, runPrep,
+  }), [
+    tasks, setTasks,
+    anchors, setAnchors,
+    lifeMode, setLifeMode,
+    plan, setPlan,
+    rescue, setRescue,
+    review, setReview,
+    reflection, setReflection,
+    simResult, setSimResult,
+    prepResult, setPrepResult,
+    runPlan, runRescue, runReview, runReflection, runSimulate, runPrep,
+  ]);
+
   return (
-    <ChronosContext.Provider value={{
-      tasks, setTasks,
-      anchors, setAnchors,
-      lifeMode, setLifeMode,
-      plan, setPlan,
-      rescue, setRescue,
-      review, setReview,
-      reflection, setReflection,
-      simResult, setSimResult,
-      prepResult, setPrepResult,
-      runPlan, runRescue, runReview, runReflection, runSimulate, runPrep,
-    }}>
+    <ChronosContext.Provider value={value}>
       {children}
     </ChronosContext.Provider>
   );
