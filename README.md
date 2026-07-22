@@ -26,6 +26,16 @@
 
 ---
 
+## 🎥 Demo
+
+<p align="center">
+  <a href="https://youtu.be/AHZPsG5rOxg">
+    <img src="https://img.youtube.com/vi/AHZPsG5rOxg/maxresdefault.jpg" width="900" alt="Chronos Demo">
+  </a>
+</p>
+
+---
+
 ## 🧩 The Problem
 
 We live in the most tool-rich era in history — yet people still miss deadlines, experience burnout, and struggle with prioritization. The average knowledge worker juggles Gmail, Google Calendar, task managers, project trackers, and messaging platforms. Not one of these tools understands the complete picture.
